@@ -44,9 +44,11 @@
         <label for="nome">Nome Completo:</label>
         <input type="text" id="nome" name="nome" readonly placeholder="Será preenchido pelo NIF">
 
-        <!-- Obra -->
+        <!-- Obra (lista suspensa) -->
         <label for="obra">Obra:</label>
-        <input type="text" id="obra" name="obra" required>
+        <select id="obra" name="obra" required>
+          <option value="">Selecione uma obra</option>
+        </select>
 
         <!-- Horas Trabalhadas -->
         <label for="horas">Horas Trabalhadas:</label>
@@ -74,6 +76,7 @@
       const mensagem = document.getElementById('mensagem');
       const nomeInput = document.getElementById('nome');
       const nifInput = document.getElementById('nif');
+      const obraSelect = document.getElementById('obra');
 
       // Função para preencher nome automaticamente pelo NIF
       nifInput.addEventListener('blur', function() {
@@ -85,6 +88,24 @@
           nomeInput.value = nome || "";
         }).buscarNomePeloNIF(nif); // função do Apps Script
       });
+
+      // Função para popular lista de obras
+      function carregarObras() {
+        google.script.run.withSuccessHandler(function(obras) {
+          obraSelect.innerHTML = '<option value="">Selecione uma obra</option>'; // reset
+          obras.forEach(function(obra) {
+            const opt = document.createElement('option');
+            opt.value = obra;
+            opt.textContent = obra;
+            obraSelect.appendChild(opt);
+          });
+        }).buscarObras(); // função do Apps Script
+      }
+
+      // Chama ao carregar a página
+      window.onload = function() {
+        carregarObras();
+      }
 
       // Envio do formulário
       form.addEventListener('submit', function(e) {
