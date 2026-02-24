@@ -1,0 +1,125 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Sistema Solar Decibel</title>
+    <style>
+      body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 20px; }
+      .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); max-width: 500px; margin: auto; }
+      header img { max-height: 60px; display: block; margin: auto; }
+      #banner { margin: 15px 0; text-align: center; }
+      #banner img { width: 100%; max-height: 60px; object-fit: cover; }
+      h1 { color: #2E8B57; text-align: center; }
+      label { display: block; margin-top: 15px; font-weight: bold; }
+      input, select { width: 100%; padding: 8px; margin-top: 5px; border-radius: 4px; border: 1px solid #ccc; }
+      input[readonly] { background: #eee; }
+      button { background: #2E8B57; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 4px; margin-top: 20px; width: 100%; }
+      button:hover { background: #246b45; }
+      .mensagem { margin-top: 15px; font-weight: bold; text-align: center; }
+      footer img { width: 100%; max-height: 60px; object-fit: cover; margin-top: 20px; }
+      footer { text-align: center; font-size: 14px; color: #555; margin-top: 10px; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Logo -->
+      <header>
+        <img src="https://github.com/horassolardecibel-glitch/SolarDecibel/raw/main/NOVO%20JEITO%20DE%20ENVIAR%20HORAS!%20(3).png" alt="Logo Solar Decibel">
+      </header>
+
+      <!-- Banner de mensagens -->
+      <div id="banner">
+        <img src="https://github.com/horassolardecibel-glitch/SolarDecibel/raw/main/NOVO%20JEITO%20DE%20ENVIAR%20HORAS!%20(2).png" alt="Banner de mensagens">
+      </div>
+
+      <h1>Registrar Horas - Solar Decibel</h1>
+
+      <form id="formRegistro">
+        <!-- NIF -->
+        <label for="nif">NIF do Funcionário:</label>
+        <input type="text" id="nif" name="nif" required>
+
+        <!-- Nome Completo preenchido automaticamente -->
+        <label for="nome">Nome Completo:</label>
+        <input type="text" id="nome" name="nome" readonly placeholder="Será preenchido pelo NIF">
+
+        <!-- Obra -->
+        <label for="obra">Obra:</label>
+        <input type="text" id="obra" name="obra" required>
+
+        <!-- Horas Trabalhadas -->
+        <label for="horas">Horas Trabalhadas:</label>
+        <input type="number" id="horas" name="horas" step="0.1" min="0" required>
+
+        <!-- Data -->
+        <label for="data">Data:</label>
+        <input type="date" id="data" name="data" required>
+
+        <button type="submit">Enviar Registro</button>
+      </form>
+
+      <!-- Mensagem de sucesso/erro -->
+      <div class="mensagem" id="mensagem"></div>
+
+      <!-- Rodapé -->
+      <footer>
+        <img src="https://github.com/horassolardecibel-glitch/SolarDecibel/raw/main/NOVO%20JEITO%20DE%20ENVIAR%20HORAS!%20(4).png" alt="Rodapé">
+        <div>Telefone: (xx) xxxx-xxxx | Email: contato@solardecibel.com | CNPJ: xx.xxx.xxx/xxxx-xx</div>
+      </footer>
+    </div>
+
+    <script>
+      const form = document.getElementById('formRegistro');
+      const mensagem = document.getElementById('mensagem');
+      const nomeInput = document.getElementById('nome');
+      const nifInput = document.getElementById('nif');
+
+      // Função para preencher nome automaticamente pelo NIF
+      nifInput.addEventListener('blur', function() {
+        const nif = nifInput.value.trim();
+        if(nif === "") return;
+
+        // Chama função do Apps Script para buscar nome pelo NIF
+        google.script.run.withSuccessHandler(function(nome) {
+          nomeInput.value = nome || "";
+        }).buscarNomePeloNIF(nif); // função do Apps Script
+      });
+
+      // Envio do formulário
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const dados = {
+          nif: form.nif.value,
+          nome: form.nome.value,
+          obra: form.obra.value,
+          horas: form.horas.value,
+          data: form.data.value
+        };
+
+        fetch("COLE_AQUI_A_URL_DO_WEB_APP", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams(dados)
+        })
+        .then(response => response.json())
+        .then(res => {
+          if(res.sucesso) {
+            mensagem.style.color = "green";
+            mensagem.textContent = res.mensagem;
+            form.reset();
+            nomeInput.value = "";
+          } else {
+            mensagem.style.color = "red";
+            mensagem.textContent = res.mensagem;
+          }
+        })
+        .catch(err => {
+          mensagem.style.color = "red";
+          mensagem.textContent = "Erro ao enviar dados: " + err;
+        });
+      });
+    </script>
+  </body>
+</html>
